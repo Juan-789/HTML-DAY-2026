@@ -1,0 +1,50 @@
+<!doctype html>
+<canvas id="paint" width="1024" height="1024" style="display:none"></canvas>
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.169.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.169.0/examples/jsm/"
+}}
+</script>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+
+// the 2D canvas that will be the texture
+const canvas = document.getElementById("paint");
+const ctx = canvas.getContext("2d");
+ctx.fillStyle = "#cccccc";
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+const texture = new THREE.CanvasTexture(canvas);
+texture.colorSpace = THREE.SRGBColorSpace;      // colors render correctly
+// if the model looks upside down, add: texture.flipY = false;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#1a1a1a");
+const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.1, 100);
+camera.position.set(0, 1, 3);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(innerWidth, innerHeight);
+document.body.appendChild(renderer.domElement);
+new OrbitControls(camera, renderer.domElement);   // mouse drag rotates the camera
+scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 2));
+
+// load the model, put the canvas texture on every mesh
+new GLTFLoader().load("model.glb", (gltf) => {
+  gltf.scene.traverse((o) => {
+    if (o.isMesh) o.material = new THREE.MeshStandardMaterial({ map: texture });
+  });
+  scene.add(gltf.scene);
+});
+
+renderer.setAnimationLoop(() => renderer.render(scene, camera));
+
+// paint test: draw a red box, then push the canvas to the 3D view
+window.paintTest = () => {
+  ctx.fillStyle = "red";
+  ctx.fillRect(200, 200, 400, 400);
+  texture.needsUpdate = true;   // re-upload the canvas to the GPU, model updates live
+};
+</script>
