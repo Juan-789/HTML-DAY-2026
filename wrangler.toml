@@ -6,3 +6,11 @@ compatibility_date = "2026-08-01"
 binding = "DB"
 database_name = "attendees-db"
 database_id = "placeholder-will-fill-in-later"
+
+[[r2_buckets]]
+binding = "MODELS_BUCKET"
+bucket_name = "attendee-models"
+
+
+[vars]
+PUBLIC_BUCKET_URL = "http://localhost:8787/mock-bucket"

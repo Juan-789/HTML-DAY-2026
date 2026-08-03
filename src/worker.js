@@ -5,6 +5,10 @@ export default {
     if (url.pathname === "/signup" && request.method === "POST") {
         return handleSignup(request, env);
     }
+
+    if (url.pathname === "/attendees" && request.method === "GET") {
+        return handleGetAttendees(request, env);
+    }
     return new Response("Not found", {status: 404});
   }
 };
@@ -64,6 +68,32 @@ async function handleSignup(request, env) {
   } catch (err) {
     console.error(err);
     return new Response(JSON.stringify({ error: "Signup failed" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+}
+
+async function handleGetAttendees(request, env) {
+  try {
+    const { results } = await env.DB.prepare(
+      "SELECT id, name, model_key FROM attendees"
+    ).all();
+
+    const attendees = results.map((row) => ({
+      id: row.id,
+      name: row.name,
+      model_url: `${env.PUBLIC_BUCKET_URL}/${row.model_key}`
+    }));
+
+    return new Response(JSON.stringify(attendees), {
+      status: 200,
+      headers: { "Content-Type": "application/json" }
+    });
+
+  } catch (err) {
+    console.error(err);
+    return new Response(JSON.stringify({ error: "Failed to fetch attendees" }), {
       status: 500,
       headers: { "Content-Type": "application/json" }
     });
