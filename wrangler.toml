@@ -1,0 +1,8 @@
+name = "html-day-2026-api"
+main = "src/worker.js"
+compatibility_date = "2026-08-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "attendees-db"
+database_id = "placeholder-will-fill-in-later"
